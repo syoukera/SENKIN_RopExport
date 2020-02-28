@@ -1,28 +1,15 @@
-COMPILE = gfortran
+CC    := gfortran
+ALL_C := $(wildcard src/*.f)
+ALL_O := $(patsubst src/%.f,src/%.o,$(ALL_C))
 
-COMLIB1 =
+senkine: $(ALL_O)
+	$(CC) $^ -o $@
 
-COMOTT1 = -O0 -Wall -Wextra
+%.o: %.f
+	$(CC) -c $< -o $@
 
-COMCONV = 
+.PHONY: clean
+clean:
+	@rm -rf senkine ./src/*.o
 
-FILES = \
-	senkin.o \
-	driv.o \
-	cklib.o \
-	dasac.o
-
-
-
-.SUFFIXES: .f .o
-
-.f.o:
-	$(COMPILE) $(COMOTT1) $(COMCONV) -c $<
-
-senkine: $(FILES)
-	$(COMPILE) $(COMOTT1) $(COMCONV) $(FILES) -o senkine $(COMLIB1)
-
-senkin.o: senkin.f
-driv.o: driv.f
-cklib.o: cklib.f
-dasac.o: dasac.f
+# you should see http://auewe.hatenablog.com/entry/2017/02/09/070446 to edit this makefile
