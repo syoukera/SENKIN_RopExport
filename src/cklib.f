@@ -5749,6 +5749,233 @@ C
 C
 C----------------------------------------------------------------------C
 C
+
+C
+C----------------------------------------------------------------------C
+C
+      SUBROUTINE CKQYP_  (P, T, Y, ICKWRK, RCKWRK, Q, LSTC)
+C
+C  START PROLOGUE
+C
+C  SUBROUTINE CKQYP  (P, T, Y, ICKWRK, RCKWRK, Q)
+C     Returns the rates of progress for the reactions given pressure,
+C     temperature and mass fractions;  see Eqs. (51) and (58).
+C
+C  INPUT
+C     P      - Pressure.
+C                   cgs units - dynes/cm**2
+C                   Data type - real scalar
+C     T      - Temperature.
+C                   cgs units - K
+C                   Data type - real scalar
+C     Y      - Mass fractions of the species.
+C                   cgs units - none
+C                   Data type - real array
+C                   Dimension Y(*) at least KK, the total number of
+C                   species.
+C     ICKWRK - Array of integer workspace.
+C                   Data type - integer array
+C                   Dimension ICKWRK(*) at least LENIWK.
+C     RCKWRK - Array of real work space.
+C                   Data type - real array
+C                   Dimension RCKWRK(*) at least LENRWK.
+C
+C  OUTPUT
+C     Q      - Rates of progress for the reactions.
+C                   cgs units - moles/(cm**3*sec)
+C                   Data type - real array
+C                   Dimension Q(*) at least II, the total number of
+C                   reactions.
+C
+C  END PROLOGUE
+C
+C*****precision > double
+        IMPLICIT DOUBLE PRECISION (A-H, O-Z), INTEGER (I-N)
+C*****END precision > double
+C*****precision > single
+C        IMPLICIT REAL (A-H, O-Z), INTEGER (I-N)
+C*****END precision > single
+C
+      DIMENSION Y(*), ICKWRK(*), RCKWRK(*), Q(*)
+      COMMON /CKSTRT/ NMM , NKK , NII , MXSP, MXTB, MXTP, NCP , NCP1,
+     1                NCP2, NCP2T,NPAR, NLAR, NFAR, NLAN, NFAL, NREV,
+     2                NTHB, NRLT, NWL,  IcMM, IcKK, IcNC, IcPH, IcCH,
+     3                IcNT, IcNU, IcNK, IcNS, IcNR, IcLT, IcRL, IcRV,
+     4                IcWL, IcFL, IcFO, IcKF, IcTB, IcKN, IcKT, NcAW,
+     5                NcWT, NcTT, NcAA, NcCO, NcRV, NcLT, NcRL, NcFL,
+     6                NcKT, NcWL, NcRU, NcRC, NcPA, NcKF, NcKR, NcK1,
+     7                NcK2, NcK3, NcK4, NcI1, NcI2, NcI3, NcI4
+C
+      CALL CKRATT (RCKWRK, ICKWRK, NII, MXSP, RCKWRK(NcRU),
+     1             RCKWRK(NcPA), T, ICKWRK(IcNS), ICKWRK(IcNU),
+     2             ICKWRK(IcNK), NPAR+1, RCKWRK(NcCO), NREV,
+     3             ICKWRK(IcRV), RCKWRK(NcRV), NLAN, NLAR, ICKWRK(IcLT),
+     4             RCKWRK(NcLT), NRLT, ICKWRK(IcRL), RCKWRK(NcRL),
+     5             RCKWRK(NcK1), RCKWRK(NcKF), RCKWRK(NcKR),
+     6             RCKWRK(NcI1))
+C
+      CALL CKYTCP (P, T, Y, ICKWRK, RCKWRK, RCKWRK(NcK1))
+C
+      CALL CKRATX_ (NII, NKK, MXSP, MXTB, T, RCKWRK(NcK1), ICKWRK(IcNS),
+     1             ICKWRK(IcNU), ICKWRK(IcNK), NPAR+1, RCKWRK(NcCO),
+     2             NFAL, ICKWRK(IcFL), ICKWRK(IcFO), ICKWRK(IcKF), NFAR, 
+     3             RCKWRK(NcFL), NTHB, ICKWRK(IcTB), ICKWRK(IcKN), 
+     4             RCKWRK(NcKT), ICKWRK(IcKT), RCKWRK(NcKF), 
+     5             RCKWRK(NcKR), RCKWRK(NcI1), RCKWRK(NcI2), 
+     6             RCKWRK(NcI3), LSTC)
+C
+      DO 100 I = 1, NII
+         Q(I) = RCKWRK(NcI1 + I - 1) - RCKWRK(NcI2 + I - 1)
+  100 CONTINUE
+      RETURN
+      END
+C
+C----------------------------------------------------------------------C
+C
+C
+C----------------------------------------------------------------------C
+C
+      SUBROUTINE CKRATX_ (II, KK, MAXSP, MAXTB, T, C, NSPEC, NU, NUNK,
+     1                   NPAR, PAR, NFAL, IFAL, IFOP, KFAL, NFAR, FPAR, 
+     2                   NTHB, ITHB, NTBS, AIK, NKTB, RKFT, RKRT, RKF, 
+     3                   RKR, CTB, LSTC)
+C
+C  START PROLOGUE
+C
+C  SUBROUTINE CKRATX (II, KK, MAXSP, MAXTB, T, C, NSPEC, NU, NUNK,
+C 1                   NPAR, PAR, NFAL, IFAL, IFOP, KFAL, NFAR, FPAR, 
+C 2                   NTHB, ITHB, NTBS, AIK, NKTB, RKFT, RKRT, RKF, 
+C 3                   RKR, CTB)
+C
+C  END PROLOGUE
+C
+C*****precision > double
+        IMPLICIT DOUBLE PRECISION (A-H, O-Z), INTEGER (I-N)
+C*****END precision > double
+C*****precision > single
+C        IMPLICIT REAL (A-H, O-Z), INTEGER (I-N)
+C*****END precision > single
+C
+      DIMENSION C(*), NSPEC(*), NU(MAXSP,*), NUNK(MAXSP,*), PAR(NPAR,*),
+     1          IFAL(*), IFOP(*), KFAL(*), FPAR(NFAR,*), ITHB(*),
+     2          NTBS(*), AIK(MAXTB,*), NKTB(MAXTB,*), RKFT(*),
+     3          RKRT(*), RKF(*), RKR(*), CTB(*), ISTC(II, KK)
+C
+      COMMON /MACH/ SMALL,BIG,EXPARG
+C
+      DO 20 I = 1, II
+         CTB(I) = 1.0
+         RKF(I) = RKFT(I)
+         RKR(I) = RKRT(I)
+   20 CONTINUE
+C
+C     third-body reactions
+C
+      CTOT = 0.0
+      DO 10 K = 1, KK
+         CTOT = CTOT + C(K)
+   10 CONTINUE
+C
+      DO 80 N = 1, NTHB
+         CTB(ITHB(N)) = CTOT
+         DO 80 L = 1, NTBS(N)
+            CTB(ITHB(N)) = CTB(ITHB(N)) + (AIK(L,N)-1.0)*C(NKTB(L,N))
+   80 CONTINUE
+C
+C     If fall-off (pressure correction):
+C
+      ALOGT = LOG(T)
+C
+      DO 90 N = 1, NFAL
+C
+         RKLOW = FPAR(1,N) * EXP(FPAR(2,N)*ALOGT - FPAR(3,N)/T)
+C
+C        CONCENTRATION OF THIRD BODY
+C
+         IF (KFAL(N) .EQ. 0) THEN
+            PR = RKLOW * CTB(IFAL(N)) / RKF(IFAL(N))
+            CTB(IFAL(N)) = 1.0
+         ELSE
+            PR = RKLOW * C(KFAL(N)) / RKF(IFAL(N))
+         ENDIF
+C
+         PCOR = PR / (1.0 + PR)
+C
+         IF (IFOP(N) .GT. 1) THEN
+            PRLOG = LOG10(MAX(PR,SMALL))
+C
+            IF (IFOP(N) .EQ. 2) THEN
+C
+C              8-PARAMETER SRI FORM
+C
+               XP = 1.0/(1.0 + PRLOG**2)
+               FC = ((FPAR(4,N)*EXP(-FPAR(5,N)/T) + EXP(-T/FPAR(6,N)))
+     1              **XP) * FPAR(7,N) * T**FPAR(8,N)
+C
+            ELSE
+C
+C              6-PARAMETER TROE FORM
+C
+               FCENT = (1.0-FPAR(4,N)) * EXP(-T/FPAR(5,N))
+     1               +       FPAR(4,N) * EXP(-T/FPAR(6,N))
+C
+C              7-PARAMETER TROE FORM
+C
+               IF (IFOP(N) .EQ. 4) FCENT = FCENT + EXP(-FPAR(7,N)/T)
+C
+               FCLOG = LOG10(MAX(FCENT,SMALL))
+               XN    = 0.75 - 1.27*FCLOG
+               CPRLOG= PRLOG - (0.4 + 0.67*FCLOG)
+               FLOG = FCLOG/(1.0 + (CPRLOG/(XN-0.14*CPRLOG))**2)
+               FC = 10.0**FLOG
+            ENDIF
+            PCOR = FC * PCOR
+         ENDIF
+C
+         RKF(IFAL(N)) = RKF(IFAL(N)) * PCOR
+         RKR(IFAL(N)) = RKR(IFAL(N)) * PCOR
+   90 CONTINUE
+C
+C     Multiply by the product of reactants and product of products
+C
+      DO 150 I = 1, II
+         RKF(I) = RKF(I)*CTB(I)*C(NUNK(1,I))**IABS(NU(1,I))
+         RKR(I) = RKR(I)*CTB(I)*C(NUNK(4,I))**NU(4,I)
+         IF (NUNK(2,I) .NE. 0) THEN
+            RKF(I) = RKF(I) * C(NUNK(2,I))**IABS(NU(2,I))
+            IF (NUNK(3,I) .NE. 0)
+     1         RKF(I) = RKF(I) * C(NUNK(3,I))**IABS(NU(3,I))
+         ENDIF
+         IF (NUNK(5,I) .NE. 0) THEN
+            RKR(I) = RKR(I) * C(NUNK(5,I))**NU(5,I)
+            IF (NUNK(6,I) .NE. 0)
+     1         RKR(I) = RKR(I) * C(NUNK(6,I))**NU(6,I)
+         ENDIF
+  150 CONTINUE
+C
+C     Perturbation factor
+C
+      DO 160 I = 1, II
+         RKF(I) = RKF(I) * PAR(4,I)
+         RKR(I) = RKR(I) * PAR(4,I)
+  160 CONTINUE
+C
+      DO 200 I = 1, II
+            DO 210 N = 1, MAXSP
+                  IF (NUNK(N, I) .NE. 0) THEN
+                        ISTC(I, NUNK(N, I)) = NU(N, I)
+                  ENDIF
+ 210        CONTINUE
+ 200  CONTINUE
+
+      DO 220 I = 1, II
+            WRITE (LSTC, *) (ISTC(I, K), K = 1, KK)
+ 220  CONTINUE
+      RETURN
+      END
+C
+C----------------------------------------------------------------------C
+C
       SUBROUTINE CKQYR  (RHO, T, Y, ICKWRK, RCKWRK, Q)
 C
 C  START PROLOGUE
