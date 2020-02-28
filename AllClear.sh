@@ -1,6 +1,6 @@
 #!/bin/bash
 
-rm save
+rm output/save
 rm senkine
 rm output/skout*
 rm output/terminalout
