@@ -438,7 +438,7 @@ C
       LSTM = 13
       OPEN (LDTS, FORM='FORMATTED', FILE = 'output/skout_datasheet')
       OPEN (LROP, FORM='FORMATTED', FILE = 'output/rop')
-      OPEN (LSTM, FORM='FORMATTED', FILE = 'output/stoichiometric_number')
+      OPEN (LSTM, FORM='FORMATTED', FILE = 'output/stm_number')
 C
 C       SET PARAMETERS FOR DASAC
 C
@@ -555,6 +555,7 @@ C
      1                P, PATM, RPAR, TIM, XMOL, Z)
          CALL TEXT13DTS (IPAR, KK, KSYM, LDTS,
      1                P, PATM, RPAR, TIM, XMOL, Z)
+         CALL TEXT13ROP (IPAR, II, LROP, P, RPAR, TIM, Z)
          TLASTP = TIM
          TPRINT = TPRINT + DTOUT
 C
@@ -1510,6 +1511,33 @@ C*****END vax vms
 C
       PA = P / PATM
       WRITE (LDTS, *) TIM, PA, Z(1), (XMOL(I), I = 1, KK)
+      RETURN
+      END
+C
+C---------------------------------------------------------------
+C
+      SUBROUTINE TEXT13ROP (IPAR, II, LROP, P, RPAR, TIM, Z)
+C
+C*****precision > double
+      IMPLICIT DOUBLE PRECISION (A-H, O-Z), INTEGER (I-N)
+C*****END precision > double
+C*****precision > single
+C      IMPLICIT REAL (A-H, O-Z), INTEGER (I-N)
+C*****END precision > single
+C
+      DIMENSION Z(*), RPAR(*), IPAR(*), Q(II)
+      DO 50 I = 1, II
+            Q(II) = 0
+ 50   CONTINUE
+C
+C       COMPUTE Rate of production
+C 
+      IPRCK  = IPAR(2)
+      IPICK  = IPAR(9)
+      CALL CKQYP  (P, Z(1), Z(2), IPAR(IPICK), RPAR(IPRCK), Q)
+C     CALL CKQYP  (P, T, Y, ICKWRK, RCKWRK, Q)
+
+      WRITE (LROP, *) TIM, (Q(I), I = 1, II)
       RETURN
       END
 C
