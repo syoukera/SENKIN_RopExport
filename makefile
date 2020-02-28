@@ -1,12 +1,13 @@
 CC    := gfortran
 ALL_C := $(wildcard src/*.f)
 ALL_O := $(patsubst src/%.f,src/%.o,$(ALL_C))
+CFLAGS := -g
 
 senkine: $(ALL_O)
-	$(CC) $^ -o $@
+	$(CC) $(CFLAGS) $^ -o $@
 
 %.o: %.f
-	$(CC) -c $< -o $@
+	$(CC) $(CFLAGS) -c $< -o $@
 
 .PHONY: clean
 clean:
