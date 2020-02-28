@@ -434,7 +434,11 @@ C
 C       SET OUTPUT FILE FOR USER COMFORMATION
 C
       LDTS = 11
+      LROP = 12
+      LSTM = 13
       OPEN (LDTS, FORM='FORMATTED', FILE = 'output/skout_datasheet')
+      OPEN (LROP, FORM='FORMATTED', FILE = 'output/rop')
+      OPEN (LSTM, FORM='FORMATTED', FILE = 'output/stoichiometric_number')
 C
 C       SET PARAMETERS FOR DASAC
 C
