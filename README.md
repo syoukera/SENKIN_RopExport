@@ -11,3 +11,6 @@ Time_Last ROP1 ROP2 ... ROP_Last
 ```
 
 `stm_coeff`は(反応数, 化学種数)の構造．
+
+### Worning
+`stm_coeff`で三体反応の係数が正しく出力されていない
